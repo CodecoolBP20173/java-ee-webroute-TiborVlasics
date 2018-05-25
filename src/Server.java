@@ -1,4 +1,3 @@
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
@@ -11,7 +10,6 @@ import com.sun.net.httpserver.HttpServer;
 
 
 public class Server {
-
     public static void main(String[] args) throws Exception {
         HttpServer server = HttpServer.create(new InetSocketAddress(8000), 0);
         HttpContext context = server.createContext("/", new MyHandler());
@@ -28,22 +26,17 @@ public class Server {
             String requestQuery = uri.toString();
             String requestMethod = httpExchange.getRequestMethod();
             String[] queryArray = requestQuery.split("/");
-
-            for (Method method : requestHandler.getClass().getDeclaredMethods()) {
-                WebRoute annotation = method.getAnnotation(WebRoute.class);
-                if (annotation.path().equals(requestQuery) && annotation.method().equals(requestMethod)) {
-                    try {
+            try {
+                for (Method method : requestHandler.getClass().getDeclaredMethods()) {
+                    WebRoute annotation = method.getAnnotation(WebRoute.class);
+                    if (annotation.path().equals(requestQuery) && annotation.method().equals(requestMethod)) {
                         method.invoke(requestHandler, httpExchange);
-                    } catch (IllegalAccessException | InvocationTargetException e) {
-                        e.printStackTrace();
-                    }
-                } else if (queryArray.length == 3 && (annotation.path().startsWith('/' + queryArray[1] + '/'))) {
-                    try {
+                    } else if (queryArray.length == 3 && (annotation.path().startsWith('/' + queryArray[1] + '/'))) {
                         method.invoke(requestHandler, httpExchange, queryArray[2]);
-                    } catch (IllegalAccessException | InvocationTargetException e) {
-                        e.printStackTrace();
                     }
                 }
+            } catch (IllegalAccessException | InvocationTargetException e) {
+                e.printStackTrace();
             }
         }
     }
