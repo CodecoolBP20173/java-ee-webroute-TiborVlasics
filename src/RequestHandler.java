@@ -23,6 +23,15 @@ public class RequestHandler {
 
     @WebRoute(method = "POST", path = "/users")
     public void users(HttpExchange requestData) throws IOException {
+        String name = readNameFromRequestBody(requestData);
+        String response = String.format("<h1>Logged in as: %s</h1>", name);
+        requestData.sendResponseHeaders(200, response.length());
+        OutputStream os = requestData.getResponseBody();
+        os.write(response.getBytes());
+        os.close();
+    }
+
+    private String readNameFromRequestBody(HttpExchange requestData) throws IOException {
         InputStreamReader isr =  new InputStreamReader(requestData.getRequestBody(),"utf-8");
         BufferedReader br = new BufferedReader(isr);
         int b;
@@ -32,13 +41,7 @@ public class RequestHandler {
         }
         br.close();
         isr.close();
-        String name = buf.toString().split("=")[1];
-
-        String response = String.format("<h1>Logged in as: %s</h1>", name);
-        requestData.sendResponseHeaders(200, response.length());
-        OutputStream os = requestData.getResponseBody();
-        os.write(response.getBytes());
-        os.close();
+        return buf.toString().split("=")[1];
     }
 
     @WebRoute(path = "/users")
@@ -61,6 +64,5 @@ public class RequestHandler {
         os.write(response.getBytes());
         os.close();
     }
-
 
 }
