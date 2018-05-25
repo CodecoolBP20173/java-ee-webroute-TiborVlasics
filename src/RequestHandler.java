@@ -41,9 +41,21 @@ public class RequestHandler {
         os.close();
     }
 
+    @WebRoute(path = "/users")
+    public void getUsers(HttpExchange requestData) throws IOException {
+        String response = "<h1>Users</h1>" +
+                "<a href='/user/boy'>boy</a></br>" +
+                "<a href='/user/girl'>girl</a></br>" +
+                "<a href='/user/dog'>dog</a>";
+        requestData.sendResponseHeaders(200, response.length());
+        OutputStream os = requestData.getResponseBody();
+        os.write(response.getBytes());
+        os.close();
+    }
+
     @WebRoute(path = "/user/<userName>")
     public void user(HttpExchange requestData, String userName) throws IOException {
-        String response = String.format("<h1>Logged in as: %s</h1>", userName);
+        String response = String.format("<h1>User: %s</h1>", userName);
         requestData.sendResponseHeaders(200, response.length());
         OutputStream os = requestData.getResponseBody();
         os.write(response.getBytes());
